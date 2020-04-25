@@ -245,6 +245,12 @@ class VIEW3D_PT_vr_landmarks(bpy.types.Panel):
         col.operator("view3d.vr_landmark_remove", icon='REMOVE', text="")
         col.operator("view3d.vr_landmark_from_session", icon='PLUS', text="")
 
+        col.menu("VIEW3D_MT_landmark_menu", icon='DOWNARROW_HLT', text="")
+        if True:
+            col.separator()
+            col.operator("view3d.vr_landmark_from_camera", icon='ADD', text="")
+
+
         if landmark_selected:
             layout.prop(landmark_selected, "type")
 
@@ -331,6 +337,60 @@ class VIEW3D_OT_vr_landmark_add(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
+class VIEW3D_OT_vr_landmark_from_camera(bpy.types.Operator):
+    bl_idname = "view3d.vr_landmark_from_camera"
+    bl_label = "Add VR Landmark from selected camera"
+    bl_description = "Add a new VR landmark from the selected camera to the list and select it"
+    bl_options = {'UNDO', 'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        return context.view_layer.objects.active.type == 'CAMERA'
+
+    def execute(self, context):
+        scene = context.scene
+        landmarks = scene.vr_landmarks
+        cam = context.view_layer.objects.active
+        lm = landmarks.add()
+        lm.type = 'USER_CAMERA'
+        lm.base_pose_camera = cam
+        lm.name = "LM_" + cam.name
+
+        # select newly created set
+        scene.vr_landmarks_selected = len(landmarks) - 1
+
+
+        return {'FINISHED'}
+
+
+class VIEW3D_OT_vr_landmark_from_session(bpy.types.Operator):
+    bl_idname = "view3d.vr_landmark_from_session"
+    bl_label = "Add VR Landmark from session"
+    bl_description = "Add VR landmark from the current session to the list and select it"
+    bl_options = {'UNDO', 'REGISTER'}
+
+    @classmethod
+    def poll(cls, context):
+        view3d = context.space_data
+        return bpy.types.XrSessionState.is_running(context)
+
+    def execute(self, context):
+        from mathutils import Matrix, Quaternion
+        scene = context.scene
+        landmarks = scene.vr_landmarks
+        wm = context.window_manager
+        
+        lm = landmarks.add()
+        lm.type = "CUSTOM"
+
+        loc = wm.xr_session_state.viewer_pose_location
+        rot = wm.xr_session_state.viewer_pose_rotation.to_euler()
+
+        lm.base_pose_location = loc
+        lm.base_pose_angle = rot[2]
+
+        return {'FINISHED'}
 
 class VIEW3D_OT_vr_landmark_remove(bpy.types.Operator):
     bl_idname = "view3d.vr_landmark_remove"
@@ -435,33 +495,6 @@ class VIEW3D_OT_vr_landmark_activate(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class VIEW3D_OT_vr_landmark_from_session(bpy.types.Operator):
-    bl_idname = "view3d.vr_landmark_from_session"
-    bl_label = "Add VR Landmark from session"
-    bl_description = "Add VR landmark from the current session to the list and select it"
-    bl_options = {'UNDO', 'REGISTER'}
-
-    @classmethod
-    def poll(cls, context):
-        view3d = context.space_data
-        return bpy.types.XrSessionState.is_running(context)
-
-    def execute(self, context):
-        from mathutils import Matrix, Quaternion
-        scene = context.scene
-        landmarks = scene.vr_landmarks
-        wm = context.window_manager
-        
-        lm = landmarks.add()
-        lm.type = "CUSTOM"
-
-        loc = wm.xr_session_state.viewer_pose_location
-        rot = wm.xr_session_state.viewer_pose_rotation.to_euler()
-
-        lm.base_pose_location = loc
-        lm.base_pose_angle = rot[2]
-
-        return {'FINISHED'}
 
 
 class VIEW3D_PT_vr_viewport_feedback(bpy.types.Panel):
@@ -635,6 +668,7 @@ classes = (
     VIEW3D_OT_vr_landmark_from_session,
     VIEW3D_OT_vr_landmark_to_new_cam,
     VIEW3D_OT_vr_landmark_to_active_cam,
+    VIEW3D_OT_vr_landmark_from_camera,
     VIEW3D_OT_cursor_to_vr_landmark,
 
     VIEW3D_GT_vr_camera_cone,
