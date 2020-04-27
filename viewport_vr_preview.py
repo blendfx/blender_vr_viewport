@@ -432,16 +432,22 @@ class VIEW3D_OT_update_vr_landmark(Operator):
         landmarks = scene.vr_landmarks
         wm = context.window_manager
         
-        lm = landmarks.add()
-        lm.type = "CUSTOM"
+        lm = landmarks[scene.vr_landmarks_active]
 
         loc = wm.xr_session_state.viewer_pose_location
         rot = wm.xr_session_state.viewer_pose_rotation.to_euler()
+        # only for testing
+        # loc = landmarks[0].base_pose_location
+        # rot = landmarks[0].base_pose_angle
 
         lm.base_pose_location = loc
-        lm.base_pose_angle = rot[2]
+        lm.base_pose_angle = rot
+
+        # now activate the landmark again to trigger viewer reset
+        bpy.ops.view3d.vr_landmark_activate()
 
         return {'FINISHED'}
+
 
 class VIEW3D_OT_vr_landmark_remove(Operator):
     bl_idname = "view3d.vr_landmark_remove"
