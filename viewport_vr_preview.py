@@ -22,11 +22,11 @@ import bpy
 from bpy.types import (
     Gizmo,
     GizmoGroup,
+    PropertyGroup,
+    UIList,
+    Menu,
     Panel,
     Operator,
-    Menu,
-    PropertyGroup,
-    UIList
 )
 from bpy.props import (
     CollectionProperty,
@@ -150,17 +150,15 @@ def xr_landmark_active_update(self, context):
 class VIEW3D_MT_landmark_menu(Menu):
     bl_label = "Landmark Controls"
     
-
     def draw(self, _context):
         layout = self.layout
 
         layout.operator("view3d.vr_landmark_from_camera")
-        layout.operator("view3d.cursor_to_vr_landmark")
+        layout.operator("view3d.update_vr_landmark")
         layout.separator()
         layout.operator("view3d.cursor_to_vr_landmark")
-        layout.operator("view3d.new_cam_to_vr_landmark")
         layout.operator("view3d.active_cam_to_vr_landmark")
-        layout.operator("view3d.update_vr_landmark")
+        layout.operator("view3d.new_cam_to_vr_landmark")
 
 
 class VRLandmark(PropertyGroup):
@@ -177,8 +175,6 @@ class VRLandmark(PropertyGroup):
             ('USER_CAMERA', "Custom Camera",
              "Use an existing camera to define the VR view base location and "
              "rotation"),
-            # Custom base poses work, but it's uncertain if they are really
-            # needed. Disabled for now.
             ('CUSTOM', "Custom Pose",
              "Allow a manually definied position and rotation to be used as "
              "the VR view base pose"),
