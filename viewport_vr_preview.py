@@ -264,7 +264,6 @@ class VIEW3D_PT_vr_landmarks(Panel):
 
         col.menu("VIEW3D_MT_landmark_menu", icon='DOWNARROW_HLT', text="")
 
-
         if landmark_selected:
             layout.prop(landmark_selected, "type")
 
@@ -375,7 +374,6 @@ class VIEW3D_OT_vr_landmark_from_camera(Operator):
         # select newly created set
         scene.vr_landmarks_selected = len(landmarks) - 1
 
-
         return {'FINISHED'}
 
 
@@ -406,6 +404,7 @@ class VIEW3D_OT_vr_landmark_from_session(Operator):
         lm.base_pose_angle = rot[2]
 
         return {'FINISHED'}
+
 
 class VIEW3D_OT_update_vr_landmark(Operator):
     bl_idname = "view3d.update_vr_landmark"
@@ -483,6 +482,7 @@ class VIEW3D_OT_cursor_to_vr_landmark(Operator):
 
         return{'FINISHED'}
 
+
 class VIEW3d_OT_new_cam_to_vr_landmark(Operator):
     bl_idname = "view3d.new_cam_to_vr_landmark"
     bl_label = "New Camera from Landmark"
@@ -550,8 +550,6 @@ class VIEW3D_OT_vr_landmark_activate(Operator):
         )
 
         return {'FINISHED'}
-
-
 
 
 class VIEW3D_PT_vr_viewport_feedback(Panel):
